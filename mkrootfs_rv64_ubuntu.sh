@@ -12,6 +12,7 @@ distro=${1:-mantic}
 packages=(
     linux-image-generic
     build-essential
+    systemd-boot-efi
 )
 packages=$(IFS=, && echo "${packages[*]}")
 
@@ -19,6 +20,7 @@ name="rootfs_rv64_${distro}_$(date +%Y.%m.%d).tar"
 
 mmdebstrap --include="$packages" \
            --architecture=riscv64 \
+	   --components="main restricted multiverse universe" \
 	   --customize-hook=$d/systemd-debian-customize-hook.sh \
 	   --skip=cleanup/reproducible \
            "${distro}" \

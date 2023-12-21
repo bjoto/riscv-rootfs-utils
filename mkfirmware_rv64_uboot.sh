@@ -21,7 +21,7 @@ CONFIG_EFI_RNG_PROTOCOL=y
 CONFIG_VIRTIO_RNG=y
 CONFIG_EFI_VARIABLE_FILE_STORE=n
 CONFIG_EFI_VARIABLE_NO_STORE=n
-CONFIG_BOOTCOMMAND="virtio scan; load virtio 0:1 \$kernel_addr_r /Image; setenv bootargs \"root=/dev/vda2 rw earlycon console=tty0 console=ttyS0 panic=-1 oops=panic sysctl.vm.panic_on_oom=1\"; bootefi \${kernel_addr_r} \${fdtcontroladdr}"
+CONFIG_BOOTCOMMAND="virtio scan; load virtio 0:1 \$kernel_addr_r /Image; bootefi \${kernel_addr_r} \${fdtcontroladdr}"
 CONFIG_BOOTDELAY=0
 EOF
 

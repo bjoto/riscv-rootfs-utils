@@ -19,6 +19,7 @@ trap cleanup EXIT
 
 kernel=
 modpath=
+cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0'
 
 while getopts k:m: name ; do
     case $name in
@@ -39,6 +40,10 @@ if [[ ! $kernel ]]; then
     tar --extract --file=$rootfs -C $tmp --wildcards './boot/vmlinu?-*' --strip-components=2
     kernel=$(echo $tmp/vmlinu?*)
 fi
+
+tar --extract --file=$rootfs -C $tmp ./usr/lib/systemd/boot/efi/linuxriscv64.efi.stub
+$d/ukify.sh $tmp/usr/lib/systemd/boot/efi/linuxriscv64.efi.stub $kernel "$cmdline" $tmp/Image.efi
+kernel=$tmp/Image.efi
 
 rm -rf $imagename
 

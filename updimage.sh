@@ -5,14 +5,20 @@
 
 set -euo pipefail
 
-set -x
-
 d=$(dirname "${BASH_SOURCE[0]}")
+
+tmp=$(mktemp -d)
+
+cleanup() {
+    rm -rf "$tmp"
+}
+trap cleanup EXIT
 
 kernel=
 modpath=
+cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0'
 
-while getopts k:m: name ; do
+while getopts k:m:n name ; do
     case $name in
         k)
             kernel="$OPTARG"
@@ -44,9 +50,12 @@ guestfish --remote -- \
 
 if [[ $kernel ]]; then
     guestfish --remote -- \
-              copy-in $kernel /boot/ : \
-              copy-in $kernel /boot/efi/ : \
-              mv /boot/efi/$(basename $kernel) /boot/efi/Image
+	      copy-out /usr/lib/systemd/boot/efi/linuxriscv64.efi.stub $tmp/linuxriscv64.efi.stub
+
+    $d/ukify.sh $tmp/usr/lib/systemd/boot/efi/linuxriscv64.efi.stub $kernel "$cmdline" $tmp/Image
+
+    guestfish --remote -- \
+              copy-in $kernel /boot/efi/
 fi
 
 if [[ $modpath ]]; then
