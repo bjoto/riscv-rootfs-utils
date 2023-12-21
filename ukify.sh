@@ -3,7 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
 set -euo pipefail
 
 d=$(dirname "${BASH_SOURCE[0]}")
@@ -29,6 +28,6 @@ output=$4
     --stub=$stub \
     --linux=$kernel \
     --cmdline="$cmdline" \
-    -o $output
+    -o $output &> /dev/null
 
     #--initrd=/home/bjorn/src/riscv-rootfs-utils/up/boot/initrd.img-6.5.0-5-riscv64 
