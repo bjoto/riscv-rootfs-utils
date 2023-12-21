@@ -50,16 +50,17 @@ guestfish --remote -- \
 
 if [[ $kernel ]]; then
     guestfish --remote -- \
-	      copy-out /usr/lib/systemd/boot/efi/linuxriscv64.efi.stub $tmp/linuxriscv64.efi.stub
+              copy-out /usr/lib/systemd/boot/efi/linuxriscv64.efi.stub $tmp/
 
-    $d/ukify.sh $tmp/usr/lib/systemd/boot/efi/linuxriscv64.efi.stub $kernel "$cmdline" $tmp/Image
+    $d/ukify.sh $tmp/linuxriscv64.efi.stub $kernel "$cmdline" $tmp/Image
 
     guestfish --remote -- \
-              copy-in $kernel /boot/efi/
+              rm /boot/efi/Image : \
+              copy-in $tmp/Image /boot/efi/
 fi
 
 if [[ $modpath ]]; then
-    guestfish --remote -- copy-in $modpath /lib/modules/
+    guestfish --remote -- copy-in $modpath /lib/
 fi
 
 guestfish --remote -- \
