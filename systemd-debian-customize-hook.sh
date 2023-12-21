@@ -13,3 +13,13 @@ cat > "$1/etc/systemd/system/serial-getty@ttyS0.service.d/autologin.conf" << "EO
 ExecStart=
 ExecStart=-/sbin/agetty -o '-p -f -- \u' --keep-baud --autologin root 115200,57600,38400,9600 - $TERM
 EOF
+
+cat > "$1/etc/systemd/network/lan0.network" << "EOF"
+[Match]
+Name=eth0
+
+[Network]
+DHCP=ipv4
+EOF
+
+chroot "$1" sh -c 'systemctl enable systemd-networkd'
