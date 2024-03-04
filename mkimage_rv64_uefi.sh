@@ -19,7 +19,7 @@ trap cleanup EXIT
 
 kernel=
 modpath=
-cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0'
+cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0 efi=debug'
 
 while getopts k:m: name ; do
     case $name in
@@ -47,7 +47,7 @@ kernel=$tmp/Image.efi
 
 rm -rf $imagename
 
-imsz=1
+imsz=50
 if [[ -n $modpath ]]; then
     imsz=$(du -B 1G -s "$modpath" | awk '{print $1}')
 fi
