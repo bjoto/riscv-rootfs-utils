@@ -11,7 +11,7 @@ tmp=$(mktemp -d -p "$PWD")
 
 trap 'rm -rf "$tmp"' EXIT
 
-git clone https://github.com/u-boot/u-boot.git $tmp -b v2023.04
+git clone https://github.com/u-boot/u-boot.git $tmp -b v2024.01
 make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- qemu-riscv64_smode_defconfig
 
 cat <<EOF >>$tmp/.config
