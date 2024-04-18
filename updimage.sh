@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+set -x
 set -euo pipefail
 
 d=$(dirname "${BASH_SOURCE[0]}")
@@ -16,7 +17,7 @@ trap cleanup EXIT
 
 kernel=
 modpath=
-cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0 efi=debug'
+cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0 efi=debug acpi=force'
 
 while getopts k:m:n name ; do
     case $name in
@@ -35,7 +36,7 @@ shift $(($OPTIND -1))
 
 imagename=$1
 
-imsz=1
+imsz=2
 if [[ $modpath ]]; then
     imsz=$(du -B 1G -s "$modpath" | awk '{print $1}')
 fi

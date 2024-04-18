@@ -19,7 +19,7 @@ trap cleanup EXIT
 
 kernel=
 modpath=
-cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0 efi=debug'
+cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0 efi=debug acpi=force'
 
 while getopts k:m: name ; do
     case $name in
