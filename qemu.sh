@@ -44,6 +44,8 @@ qemu_rv64 () {
         -device virtio-rng-device,rng=rng0 \
         -drive if=none,file=${qemu_image},format=raw,id=hd0 \
         -device virtio-blk-pci,drive=hd0 \
+        -device virtio-net-device,netdev=net0 \
+        -netdev user,hostfwd=tcp::10022-:22,id=net0,tftp=tftp \
         -virtfs local,path=${qemu_passthru},mount_tag=host0,security_model=mapped,id=host0
 }
 
