@@ -12,7 +12,7 @@ tmp=$(mktemp -d -p "$PWD")
 trap 'rm -rf "$tmp"' EXIT
 
 git clone https://github.com/u-boot/u-boot.git $tmp -b v2024.10
-make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- qemu-riscv64_smode_defconfig
+make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- qemu-riscv64_smode_defconfig acpi.config
 
 cat <<EOF >>$tmp/.config
 CONFIG_CMD_KASLRSEED=y
@@ -27,13 +27,13 @@ EOF
 
 make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- -j $(nproc)
 
-mv $tmp/u-boot.bin $tmp/rv64-u-boot.bin
+mv $tmp/u-boot.bin $tmp/rv64-u-boot-acpi.bin
 
 cd $tmp
 short_sha1=`git rev-parse --short HEAD`
 cd ..
 
-name="firmware_rv64_uboot_${short_sha1}.tar.zst"
-echo "${short_sha1}" > $tmp/uboot-sha1
+name="firmware_rv64_uboot_acpi_${short_sha1}.tar.zst"
+echo "${short_sha1}" > $tmp/uboot-acpi-sha1
 rm -rf "$name"
-tar -C "$tmp" -c -I 'zstd --ultra -20 -T0' -f "$name" ./rv64-u-boot.bin ./uboot-sha1
+tar -C "$tmp" -c -I 'zstd --ultra -20 -T0' -f "$name" ./rv64-u-boot-acpi.bin ./uboot-acpi-sha1

@@ -1,66 +1,33 @@
 # riscv-rootfs-utils
 
-The riscv-rootfs-utils repository contains a set of scripts to build a
-Debian derived rootfs for RISC-V.
+The riscv-rootfs-utils repository contains a set of scripts to build
+firmware, qemu, and rootfs for RISC-V.
 
 A 9p host mount is available at /opt/host. Configure in the qemu.sh
 script.
 
-It's always uses UEFI and UKI.
+It's always uses UEFI, and defaults to RVA23.
 
-This is mostly for my own workflow, so there are some hacks to get it
-to work ;-) I'm an Ubuntu/Debian person, and Ukify is, e.g. not available yet.
-
-1. Manually install Ukify
-
-```
-mkdir -p ~/src/
-cd src
-git clone https://github.com/systemd/systemd.git
-cd systemd/src/ukify
-python -m venv venv
-. ./venv/bin/activate
-pip install pefile
-```
-
-Apply this patch for Ubuntu rootfs:
-```
-diff --git a/src/ukify/ukify.py b/src/ukify/ukify.py
-index 6e9d86b783de..bf93933cc01a 100755
---- a/src/ukify/ukify.py
-+++ b/src/ukify/ukify.py
-@@ -573,7 +573,7 @@ def pe_add_sections(uki: UKI, output: str):
- 
-     warnings = pe.get_warnings()
-     if warnings:
--        raise PEError(f'pefile warnings treated as errors: {warnings}')
-+        pass #raise PEError(f'pefile warnings treated as errors: {warnings}')
- 
-     security = pe.OPTIONAL_HEADER.DATA_DIRECTORY[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_SECURITY']]
-     if security.VirtualAddress != 0:
-```
-
-2. Make sure you have qemu-user/mmdebstrap/guestfish working. Note
-   that guestfish require your running /boot/vmlinuz to be readable
-   for non-root usage.
+Make sure you have qemu-user/mmdebstrap/guestfish working. Note that
+guestfish require your running /boot/vmlinuz to be readable for
+non-root usage.
 
 ## Typical usage
 
-Build an Ubuntu image
-
+Bootstrap firmware, qemu, and a raw image
 ```
-./mkrootfs_rv64_ubuntu.sh
-./mkimage rootfs_rv64_mantic_2023.12.21.tar ubuntu.img
+./prepare.sh
 ```
 
 Boot the image:
 ```
-./qemu.sh ubuntu.img
+./qemu.sh dt noble.img /hostpath/that/shows/up/in/opt/host
+./qemu.sh acpi noble.img /hostpath/that/shows/up/in/opt/host
 ```
 
 Update kernel to an image:
 ```
-./updimage.sh -k arch/riscv/boot/Image ubuntu.img
+./updimage.sh -k arch/riscv/boot/Image noble.img
 ```
 
 Update modules to an image:
@@ -68,9 +35,9 @@ Update modules to an image:
 ./updimage.sh -m modules/6.7.0-rc4-defconfig_plain-00010-gfe9a5548c514 ubuntu.img
 ```
 
-My hack/boot flow, after in image is built:
+My hack/boot flow, after `prepare.sh` has been run:
 
-First you need a build wrapper in `~/bin/rvb` (Risc-V Build):
+First you need a build wrapper in `~/bin/rvb` (RISC-V Build):
 ```
 make ARCH=riscv CROSS_COMPILE="ccache riscv64-linux-gnu-" PAHOLE=~/src/pahole/build/pahole -j $(($(nproc)-1)) $*
 ```
@@ -93,11 +60,13 @@ trap cleanup EXIT
 
 ~/bin/rvb INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=$tmp modules_install
 ~/src/riscv-rootfs-utils/updimage.sh -m $tmp/lib/modules -k arch/riscv/boot/Image ~/src/riscv-rootfs-utils/ubuntu.img
-~/src/riscv-rootfs-utils/qemu.sh ~/src/riscv-rootfs-utils/ubuntu.img
+~/src/riscv-rootfs-utils/qemu.sh acpi ~/src/riscv-rootfs-utils/ubuntu.img /home/bjorn/src
 ```
 
 You hack, `rvb`, hack, `rvb`. When it works (or you think it does),
 `doit`.
+
+The kernel command line can be changed in the `qemu.sh` script.
 
 ## Misc
 
@@ -110,8 +79,3 @@ If you want to customize the rootfs, `hack
 systemd-debian-customize-hook.sh`.
 
 If you need a friend, get a dog/cat.
-
-## TODO
-
-Support initramfs => Use Ukify for Debian Sid -- currently the Sid
-kernel barfs w/ initramfs

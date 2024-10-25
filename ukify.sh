@@ -29,5 +29,3 @@ output=$4
     --linux=$kernel \
     --cmdline="$cmdline" \
     -o $output &> /dev/null
-
-    #--initrd=/home/bjorn/src/riscv-rootfs-utils/up/boot/initrd.img-6.5.0-5-riscv64 

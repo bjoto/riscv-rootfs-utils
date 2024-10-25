@@ -19,7 +19,6 @@ trap cleanup EXIT
 
 kernel=
 modpath=
-cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0'
 
 while getopts k:m: name ; do
     case $name in
@@ -40,10 +39,6 @@ if [[ ! $kernel ]]; then
     tar --extract --file=$rootfs -C $tmp --wildcards './boot/vmlinu?-*' --strip-components=2
     kernel=$(echo $tmp/vmlinu?*)
 fi
-
-tar --extract --file=$rootfs -C $tmp ./usr/lib/systemd/boot/efi/linuxriscv64.efi.stub
-$d/ukify.sh $tmp/usr/lib/systemd/boot/efi/linuxriscv64.efi.stub $kernel "$cmdline" $tmp/Image.efi
-kernel=$tmp/Image.efi
 
 rm -rf $imagename
 
@@ -71,9 +66,12 @@ guestfish --remote -- \
           mkfs vfat /dev/sda1 : \
           mount /dev/sda1 /boot/efi : \
           tar-in $rootfs / : \
-          copy-in $kernel /boot/efi/ : \
-          mv /boot/efi/$(basename $kernel) /boot/efi/Image
+          copy-in $kernel /boot/efi/
 
+
+if [[ $(basename $kernel) != Image ]]; then
+    guestfish --remote -- mv /boot/efi/$(basename $kernel) /boot/efi/Image
+fi
 
 if [[ $modpath ]]; then
     guestfish --remote -- copy-in $modpath /lib/modules/

@@ -7,7 +7,7 @@ set -euo pipefail
 
 d=$(dirname "${BASH_SOURCE[0]}")
 
-distro=${1:-mantic}
+distro=${1:-noble}
 
 packages=(
     linux-image-generic

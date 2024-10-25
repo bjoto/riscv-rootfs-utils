@@ -16,7 +16,6 @@ trap cleanup EXIT
 
 kernel=
 modpath=
-cmdline='root=/dev/vda2 rw earlycon console=tty0 console=ttyS0'
 
 while getopts k:m:n name ; do
     case $name in
@@ -50,13 +49,12 @@ guestfish --remote -- \
 
 if [[ $kernel ]]; then
     guestfish --remote -- \
-              copy-out /usr/lib/systemd/boot/efi/linuxriscv64.efi.stub $tmp/
-
-    $d/ukify.sh $tmp/linuxriscv64.efi.stub $kernel "$cmdline" $tmp/Image
-
-    guestfish --remote -- \
               rm /boot/efi/Image : \
-              copy-in $tmp/Image /boot/efi/
+              copy-in $kernel /boot/efi/
+
+     if [[ $(basename $kernel) != Image ]]; then
+         guestfish --remote -- mv /boot/efi/$(basename $kernel) /boot/efi/Image
+     fi
 fi
 
 if [[ $modpath ]]; then
@@ -68,5 +66,3 @@ guestfish --remote -- \
           umount /boot/efi : \
           umount / : \
           exit
-
-
