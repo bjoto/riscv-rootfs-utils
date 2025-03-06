@@ -13,7 +13,7 @@ tmp=$(mktemp -d -p "$PWD")
 
 trap 'rm -rf "$tmp"' EXIT
 
-git clone https://github.com/riscv/opensbi.git -b v1.5.1 $tmp
+git clone https://github.com/riscv/opensbi.git -b v1.6 $tmp
 
 make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- PLATFORM_RISCV_XLEN=64 PLATFORM=generic -j $(nproc)
 

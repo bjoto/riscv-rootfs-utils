@@ -11,7 +11,7 @@ tmp=$(mktemp -d -p "$PWD")
 
 trap 'rm -rf "$tmp"' EXIT
 
-git clone https://github.com/u-boot/u-boot.git $tmp -b v2024.10
+git clone https://github.com/u-boot/u-boot.git $tmp -b v2025.04-rc3
 make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- qemu-riscv64_smode_defconfig acpi.config
 
 cat <<EOF >>$tmp/.config
@@ -23,8 +23,12 @@ CONFIG_EFI_VARIABLE_FILE_STORE=n
 CONFIG_EFI_VARIABLE_NO_STORE=n
 CONFIG_BOOTCOMMAND="virtio scan; load virtio 0:1 \$kernel_addr_r /Image; fdt get value bootargs /chosen bootargs; bootefi \${kernel_addr_r} \${fdtcontroladdr}"
 CONFIG_BOOTDELAY=0
+CONFIG_BLOBLIST=y
+CONFIG_BLOBLIST_ALLOC=y
+CONFIG_BLOBLIST_SIZE_RELOC=0x20000
 EOF
 
+make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- olddefconfig
 make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- -j $(nproc)
 
 mv $tmp/u-boot.bin $tmp/rv64-u-boot-acpi.bin

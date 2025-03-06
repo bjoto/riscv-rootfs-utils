@@ -11,7 +11,7 @@ tmp=$(mktemp -d -p "$PWD")
 
 trap 'rm -rf "$tmp"' EXIT
 
-git clone https://github.com/u-boot/u-boot.git $tmp -b v2024.10
+git clone https://github.com/u-boot/u-boot.git $tmp -b v2025.04-rc3
 make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- qemu-riscv64_smode_defconfig
 
 cat <<EOF >>$tmp/.config
@@ -25,6 +25,7 @@ CONFIG_BOOTCOMMAND="virtio scan; load virtio 0:1 \$kernel_addr_r /Image; fdt get
 CONFIG_BOOTDELAY=0
 EOF
 
+make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- olddefconfig
 make -C $tmp ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- -j $(nproc)
 
 mv $tmp/u-boot.bin $tmp/rv64-u-boot.bin
